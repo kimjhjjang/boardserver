@@ -113,6 +113,11 @@ public class UserController {
 
     @PatchMapping("password")
     @LoginCheck(type = LoginCheck.UserType.USER)
+    @Operation(summary = "유저 비밀번호 변경", description = "유저 비밀번호 변경합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "유저 비밀번호 변경 성공"),
+            @ApiResponse(responseCode = "401", description = "유저 비밀번호 변경 실패")
+    })
     public ResponseEntity<LoginResponse> updateUserPassword(String accountId, @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
                                                             HttpSession session) {
         ResponseEntity<LoginResponse> responseEntity = null;
@@ -129,6 +134,33 @@ public class UserController {
             log.error("updatePassword 실패", e);
             responseEntity = FAIL_RESPONSE;
         }
+        return responseEntity;
+    }
+
+    @PatchMapping("delete")
+    @LoginCheck(type = LoginCheck.UserType.USER)
+    @Operation(summary = "유저 탈퇴", description = "유저 탈퇴 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "유저 탈퇴 성공"),
+            @ApiResponse(responseCode = "401", description = "유저 탈퇴 실패")
+    })
+    public ResponseEntity<LoginResponse> deleteUser(String accountId, @RequestBody UserLoginRequest userLoginRequest,
+                                                    HttpSession session) {
+        ResponseEntity<LoginResponse> responseEntity = null;
+        String Id = accountId;
+        String password = userLoginRequest.getPassword();
+
+        log.info("delete User accountId: {}", accountId);
+
+        try {
+            userService.deleteId(Id, password);
+            SessionUtil.clear(session);
+            responseEntity = new ResponseEntity<LoginResponse>(HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            log.error("deleteUser 실패", e);
+            responseEntity = FAIL_RESPONSE;
+        }
+        log.info("delete User responseEntity: {}", responseEntity);
         return responseEntity;
     }
 }

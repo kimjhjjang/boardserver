@@ -38,6 +38,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User registration failed");
         }
 
+        log.info("User registered successfully with ID: {}", userDto.getId());
+
     }
 
     @Override
